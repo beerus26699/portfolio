@@ -1,0 +1,33 @@
+.loop-slider {
+    .inner {
+      display: flex;
+      width: fit-content;
+      animation-name: loop;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      animation-duration: var(--duration);
+    }
+  }
+  
+  .fade {
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      #1e293b,
+      transparent 30%,
+      transparent 70%,
+      #1e293b
+    );
+    position: absolute;
+    inset: 0;
+  }
+  
+  @keyframes loop {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
