@@ -201,7 +201,7 @@ export default function Invoice() {
       </div>
       <input type="file" ref={fileRef} className="" />
       <Button
-        text="Export"
+        text="Export Invoice"
         onClick={handleParseFileRaw}
         variant="gradient"
         className="mb-10 ml-5"
