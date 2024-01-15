@@ -279,7 +279,7 @@ export default function Invoice() {
           <div className="w-1/2 text-end grid grid-cols-3">
             <div className="col-span-2 pr-1">Date</div>
             <div className="border border-b-0 text-center">
-              {dayjs().format("MMM - DD")}
+              {dayjs().format("MMM - YYYY")}
             </div>
             <div className="col-span-2 pr-1">Invoice No</div>
             <div className="border text-center">{invoiceNo}</div>
