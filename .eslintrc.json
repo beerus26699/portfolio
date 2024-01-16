@@ -1,7 +1,7 @@
 {
-  "extends": "next/core-web-vitals",
-  "rules": {
-    "react/jsx-key": "warn",
-    "react/no-unescaped-entities": "warn"
-  }
+    "extends": "next/core-web-vitals",
+    "rules": {
+        "react/jsx-key": "warn",
+        "react/no-unescaped-entities": "warn"
+    }
 }
