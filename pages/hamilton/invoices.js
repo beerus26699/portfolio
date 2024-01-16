@@ -2,9 +2,11 @@
 
 import Button from "@/components/atoms/Buttons";
 import SaveIcon from "@/components/atoms/Icons/SaveIcon";
+import TemplateInvoice from "@/components/organisms/Hamilton/TemplateInvoice";
+import clsx from "clsx";
 import dayjs from "dayjs";
 import jsPDF from "jspdf";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { read, utils, readFile } from "xlsx";
 
 // dimenssion of A4 in mm
@@ -35,21 +37,18 @@ const default_headers = [
   "Total((Time Worked / 60))",
 ];
 
-const billable_key = "THCMAINT-Billable";
-const overtime_key = "THCMAINT- Overtime";
-const night_service_key = "THCMAINT-Night Service";
+export const billable_key = "THCMAINT-Billable";
+export const overtime_key = "THCMAINT- Overtime";
+export const night_service_key = "THCMAINT-Night Service";
 
-const time_prices = {
+export const time_prices = {
   [billable_key]: 72,
   [overtime_key]: 100,
   [night_service_key]: 90,
 };
 
 const aliasString = (str) => {
-  return str
-    .toLowerCase()
-    .replace(/(\-|\.| ){2,}/, "_")
-    .replace(" ", "_");
+  return str.split(/(\s+)/).filter( e => e.trim().length > 0).join('-');
 };
 
 const containsAllUppercase = (str) => {
@@ -59,22 +58,8 @@ const containsAllUppercase = (str) => {
 export default function Invoice() {
   const fileRef = useRef(null);
   const [technicians, setTechnicians] = useState({});
-  const [invoiceNo, setInvoiceNo] = useState("");
-  const [technician, setTechnician] = useState("");
-  const [property, setProperty] = useState("");
-  const [billableTable, setBillableTable] = useState([]);
-  const [overtimeTable, setOvertimeTable] = useState([]);
-  const [nightServiceTable, setNightServiceTable] = useState([]);
-
-  const totalBillable =
-    (billableTable.reduce((total, row) => total + row.minutes, 0) / 60) *
-    time_prices[billable_key];
-  const totalOvertime =
-    (overtimeTable.reduce((total, row) => total + row.minutes, 0) / 60) *
-    time_prices[overtime_key];
-  const totalNightService =
-    (nightServiceTable.reduce((total, row) => total + row.minutes, 0) / 60) *
-    time_prices[night_service_key];
+  const [errRows, setErrRows] = useState([]);
+  const [invoices, setInvoices] = useState([]);
 
   const handleParseFileRaw = () => {
     const file = fileRef.current.files[0];
@@ -135,6 +120,7 @@ export default function Invoice() {
         });
 
         setTechnicians(technicians);
+        setErrRows(error_rows);
 
         console.log("🚀 ~ handleClick ~ technicians:", technicians);
         console.log("🚀 ~ handleClick ~ technicians:", error_rows);
@@ -144,55 +130,94 @@ export default function Invoice() {
     reader.readAsBinaryString(file);
   };
 
-  const handleExportPdf = (technician_name, property_name) => {
-    setTechnician(technician_name);
-    setProperty(property_name);
-    setInvoiceNo((Math.random() * 100000).toFixed(0));
+  const handleRenderInvoices = async (technician_name) => {
+    setInvoices([]);
+    const _invoices = [];
+    for (const property_name in technicians[technician_name]) {
+      const { billableTable, overtimeTable, nightServiceTable, invoiceNo } =
+        prepareTemplate(technician_name, property_name);
+      let date = "";
 
-    let _billableTable = [];
-    let _overtimeTable = [];
-    let _nightServiceTable = [];
+      if (billableTable.length) {
+        date = billableTable[0].date;
+      } else if (overtimeTable.length) {
+        date = overtimeTable[0].date;
+      } else if (nightServiceTable.length) {
+        date = nightServiceTable[0].date;
+      }
+
+      date = dayjs(date).format("MMM - YYYY");
+
+      _invoices.push({
+        templateId: "template_" + invoiceNo,
+        isShowTemplate: true,
+        technician: technician_name,
+        property: property_name,
+        date,
+        invoiceNo,
+        billableTable,
+        overtimeTable,
+        nightServiceTable,
+      });
+    }
+
+    if (_invoices.length) {
+      setInvoices(_invoices);
+    }
+  };
+
+  const prepareTemplate = (technician_name, property_name) => {
+    const billableTable = [];
+    const overtimeTable = [];
+    const nightServiceTable = [];
     for (const row of technicians[technician_name][property_name]) {
       if (row.work_type === billable_key) {
-        _billableTable.push(row);
+        billableTable.push(row);
       } else if (row.work_type === overtime_key) {
-        _overtimeTable.push(row);
+        overtimeTable.push(row);
       } else if (row.work_type === night_service_key) {
-        _nightServiceTable.push(row);
+        nightServiceTable.push(row);
       }
     }
 
-    setBillableTable(_billableTable);
-    setOvertimeTable(_overtimeTable);
-    setNightServiceTable(_nightServiceTable);
-
-    const filename = `Invoice_${technician_name.replace(
-      " ",
-      "-"
-    )}_${property_name.replace(" ", "-")}.pdf`;
-    const doc = new jsPDF({
-      orientation: "p",
-      format: "a4",
-      unit: "px",
-      hotfixes: ["px_scaling"],
-    });
-
-    doc.setFont("times");
-
-    doc.html(document.getElementById("template"), {
-      callback(doc) {
-        doc.output("dataurlnewwindow");
-        // doc.save(filename);
-      },
-      x: 0,
-      y: 0,
-      autoPaging: "text",
-      //   html2canvas: {},
-      margin: 20,
-      width: 750,
-      windowWidth: 830,
-    });
+    return {
+      billableTable,
+      overtimeTable,
+      nightServiceTable,
+      invoiceNo: (Math.random() * 100000).toFixed(0),
+    };
   };
+
+  useEffect(() => {
+    if (!invoices.length) return;
+    for (const invoice of invoices) {
+      const filename = `Invoice_${aliasString(
+        invoice.technician
+      )}_${aliasString(invoice.property)}.pdf`;
+
+      const doc = new jsPDF({
+        orientation: "p",
+        format: "a4",
+        unit: "px",
+        hotfixes: ["px_scaling"],
+      });
+
+      doc.setFont("times");
+      doc.html(document.getElementById(invoice.templateId), {
+        async callback(doc) {
+          //   doc.output("dataurlnewwindow");
+          doc.save(filename);
+        },
+        x: 0,
+        y: 0,
+        autoPaging: "text",
+        //   html2canvas: {},
+        margin: 20,
+        width: 750,
+        windowWidth: 830,
+      });
+    }
+  }, [invoices]);
 
   return (
     <div className="p-2 bg-white text-black">
@@ -201,12 +226,20 @@ export default function Invoice() {
       </div>
       <input type="file" ref={fileRef} className="" />
       <Button
-        text="Export Invoice"
+        text="Parse File Raw"
         onClick={handleParseFileRaw}
         variant="gradient"
         className="mb-10 ml-5"
       />
-
+      <div>
+        {!!errRows.length && (
+          <div>
+            <span className="text-red-500">Error row excel: </span>
+            {errRows.join(", ")}
+            <span></span>
+          </div>
+        )}
+      </div>
       <div className="my-10">
         {Object.keys(technicians).map((technician, index) => (
           <div className="mt-3 border border-black p-2" key={technician}>
@@ -214,16 +247,16 @@ export default function Invoice() {
               <span>
                 {index + 1}. {technician}
               </span>
+              <SaveIcon
+                className="w-4 h-4 cursor-pointer ml-1"
+                onClick={() => handleRenderInvoices(technician)}
+              />
             </div>
             <div className="grid grid-cols-4 gap-2">
               {Object.keys(technicians[technician]).map((property) => (
                 <div key={`${technician}__${property}`}>
                   <div className="text-black flex items-center">
                     <span>{property}</span>
-                    <SaveIcon
-                      className="w-4 h-4 cursor-pointer ml-1"
-                      onClick={() => handleExportPdf(technician, property)}
-                    />
                   </div>
                   <ul className="text-sm text-gray-500 list-disc">
                     {Object.keys(technicians[technician][property]).map(
@@ -243,204 +276,10 @@ export default function Invoice() {
       </div>
 
       <div className="text-center my-6 text-xl border-y">Template Invoice</div>
-
-      <div id="template" className="text-black">
-        <div className="text-center">
-          <div className="text-2xl flex justify-center text-white bg-[#3289a8] font-bold">
-            <div>HAMILTON</div>
-            <span className="ml-3">COMPANY</span>
-            <span className="ml-3">INC</span>
-          </div>
-          <div>HAMILTON COMPANY INC</div>
-          <div className="text-sm">
-            <div>39 Brighton Ave, Boston, MA 02134</div>
-            <div>Mobile - +1 (617) 783-0039</div>
-            <div>Website - thehamiltoncompany.com</div>
-          </div>
-          <div className="text-2xl mt-5 text-white bg-[#0b0c5c] font-bold">
-            INVOICE
-          </div>
-        </div>
-        <div className="flex justify-center w-1/2 uppercase text-center mt-5 text-white bg-black font-bold">
-          <span>BILL</span>
-          <span className="ml-3">TO</span>
-        </div>
-        <div className="flex">
-          <div className="w-1/2">
-            <div className="flex">
-              <span className="w-1/4">Name:</span>
-              <span className="font-semibold">{technician}</span>
-            </div>
-            <div className="flex">
-              <span className="w-1/4">Property:</span>
-              <span className="font-semibold">{property}</span>
-            </div>
-          </div>
-          <div className="w-1/2 text-end grid grid-cols-3">
-            <div className="col-span-2 pr-1">Date</div>
-            <div className="border border-b-0 text-center">
-              {dayjs().format("MMM - YYYY")}
-            </div>
-            <div className="col-span-2 pr-1">Invoice No</div>
-            <div className="border text-center">{invoiceNo}</div>
-          </div>
-        </div>
-
-        {/* THCMAINT-Billable Table  */}
-        <div className="mt-9">
-          <div className="flex mb-1">
-            <div className="w-1/2 font-bold text-lg">THCMAINT-Billable</div>
-            <div className="w-1/2 text-right italic">Pay Rate: $72.00</div>
-          </div>
-          <table className="w-full border-collapse border ">
-            <thead>
-              <tr>
-                <th className="border w-1/6">Date</th>
-                <th className="border w-1/2">Description</th>
-                <th className="border ">Work Orders</th>
-                <th className="border ">Hours</th>
-                <th className="border ">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {billableTable.map((row, index) => (
-                <tr key={`billable_${index}`} className="text-center ">
-                  <td className="border">{row.date}</td>
-                  <td className="text-left border pl-2">{row.description}</td>
-                  <td className="border">{row.work_order}</td>
-                  <td className="border">{(row.minutes / 60).toFixed(2)}</td>
-                  <td className="border">
-                    $
-                    {Math.round(
-                      (row.minutes / 60) * time_prices[billable_key]
-                    ).toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* THCMAINT-Overtime Table  */}
-        <div className="mt-9">
-          <div className="flex mb-1">
-            <div className="w-1/2 font-bold">THCMAINT-Overtime</div>
-            <div className="w-1/2 text-right italic">Pay Rate: $100.00</div>
-          </div>
-          <table className="w-full border-collapse border ">
-            <thead>
-              <tr>
-                <th className="border w-1/6">Date</th>
-                <th className="border w-1/2">Description</th>
-                <th className="border ">Work Orders</th>
-                <th className="border ">Hours</th>
-                <th className="border ">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {overtimeTable.map((row, index) => (
-                <tr key={`overtime_${index}`} className="text-center ">
-                  <td className="border">{row.date}</td>
-                  <td className="text-left border pl-2">{row.description}</td>
-                  <td className="border">{row.work_order}</td>
-                  <td className="border">{(row.minutes / 60).toFixed(2)}</td>
-                  <td className="border">
-                    $
-                    {Math.round(
-                      (row.minutes / 60) * time_prices[overtime_key]
-                    ).toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* THCMAINT-Night Service Table  */}
-        <div className="mt-9">
-          <div className="flex mb-1">
-            <div className="w-1/2 font-bold">THCMAINT-Night Service</div>
-            <div className="w-1/2 text-right italic">Pay Rate: $90.00</div>
-          </div>
-          <table className="w-full border-collapse border ">
-            <thead>
-              <tr>
-                <th className="border w-1/6">Date</th>
-                <th className="border w-1/2">Description</th>
-                <th className="border ">Work Orders</th>
-                <th className="border ">Hours</th>
-                <th className="border ">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {nightServiceTable.map((row, index) => (
-                <tr key={`night_service_${index}`} className="text-center ">
-                  <td className="border">{row.date}</td>
-                  <td className="text-left border pl-2">{row.description}</td>
-                  <td className="border">{row.work_order}</td>
-                  <td className="border">{(row.minutes / 60).toFixed(2)}</td>
-                  <td className="border">
-                    $
-                    {Math.round(
-                      (row.minutes / 60) * time_prices[night_service_key]
-                    ).toFixed(2)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Total Table  */}
-        <div className="mt-9">
-          <div className="flex justify-end">
-            <table className="border-collapse border w-1/2">
-              <tbody>
-                <tr className="text-center">
-                  <td className="text-left border font-semibold">
-                    THCMAINT-Billable
-                  </td>
-                  <td className="text-right border pr-2">
-                    ${totalBillable.toFixed(2)}
-                  </td>
-                </tr>
-                <tr className="text-center">
-                  <td className="text-left border font-semibold">
-                    THCMAINT-Overtime
-                  </td>
-                  <td className="text-right border pr-2">
-                    ${totalOvertime.toFixed(2)}
-                  </td>
-                </tr>
-                <tr className="text-center">
-                  <td className="text-left border font-semibold">
-                    THCMAINT-Night Service
-                  </td>
-                  <td className="text-right border pr-2">
-                    ${totalNightService.toFixed(2)}
-                  </td>
-                </tr>
-                <tr className="text-center">
-                  <td className="text-left border font-bold">Total</td>
-                  <td className="text-right border pr-2">
-                    $
-                    {(
-                      totalBillable +
-                      totalOvertime +
-                      totalNightService
-                    ).toFixed(2)}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="mt-16">
-          <div className="w-1/2 border-t">
-            <div className="text-center">Property Manager's Signature</div>
-          </div>
-        </div>
+      <div id="templates">
+        {invoices.map((template) => (
+          <TemplateInvoice {...template} key={template.invoiceNo} />
+        ))}
       </div>
     </div>
   );
