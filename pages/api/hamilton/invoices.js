@@ -1,5 +1,4 @@
 import fs from "fs";
-import PDFDocument from "pdfkit";
 import { jsPDF } from "jspdf";
 
 const baseFont = 10;
