@@ -2,6 +2,10 @@
 import React, { useTransition, useState } from 'react';
 import Image from 'next/image';
 import TabButton from './TabButton';
+import CodeIcon from '@/components/atoms/Icons/CodeIcon';
+import NodejsIcon from '@/components/atoms/Icons/NodejsIcon';
+import NextjsIcon from '@/components/atoms/Icons/NextjsIcon';
+import ReactjsIcon from '@/components/atoms/Icons/ReactjsIcon';
 
 const TAB_DATA = [
     {
@@ -48,7 +52,47 @@ const AboutSection = () => {
     return (
         <section className="text-white" id="about">
             <div className="md:grid md:grid-cols-2 gap-8 items-center py-8 px-4 xl:gap-16 sm:py-16 xl:px-16">
-                <Image src="/images/avatar.jpg" width={400} height={400} />
+                <div
+                    className="shadow-xl p-4 max-w-fit mx-auto bg-[rgb(109,109,109)]"
+                    style={{ boxShadow: '0 4px 6px rgb(0 0 0 / 30%)' }}
+                >
+                    <div className="border-b p-2 pt-0 flex justify-start gap-3 border-[rgb(73,73,73)] mb-2">
+                        <div
+                            className="rounded-full"
+                            style={{
+                                height: '10px',
+                                width: '10px',
+                                backgroundColor: 'rgb(237, 76, 92)',
+                            }}
+                        ></div>
+                        <div
+                            className="rounded-full"
+                            style={{
+                                height: '10px',
+                                width: '10px',
+                                backgroundColor: 'rgb(253, 203, 88)',
+                            }}
+                        ></div>
+                        <div
+                            className="rounded-full"
+                            style={{
+                                height: '10px',
+                                width: '10px',
+                                backgroundColor: 'rgb(120, 177, 89)',
+                            }}
+                        ></div>
+                    </div>
+                    <img src="/images/avatar2.jpg" className="h-[400px]" />
+                    <div className="p-4 pb-1 flex justify-center gap-3">
+                        {/* <FaReact className='w-12 h-auto text-blue-b400'/> */}
+                        {/* <FaNodeJs className='w-12 h-auto text-green-g500'/> */}
+                        {/* <FaLaravel className='w-12 h-auto text-red'/> */}
+                        {/* <span className="text-5xl">⭐⭐⭐</span> */}
+                        {/* <CodeIcon className='w-12 h-12' /> */}
+                        <NodejsIcon className='w-12 h-12 text-[#6cc24a]' />
+                        <ReactjsIcon className='w-12 h-12 text-[#61DBFB]' />
+                    </div>
+                </div>
                 <div className="mt-4 md:mt-0 text-left flex flex-col h-full text-gray-n600">
                     <h2 className="text-4xl font-bold text-white mb-4">
                         ✅ About Me

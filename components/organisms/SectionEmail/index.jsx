@@ -78,7 +78,7 @@ const EmailSection = () => {
                     >
                         <FacebookIcon className="w-10 h-10 text-[#3b5998] hover:opacity-80" />
                     </Link>
-                    <Link href="github.com">
+                    <Link href="mailto:hainv266@gmail.com">
                         <GmailIcon className="w-10 h-10 text-[#c71610] hover:opacity-80 " />
                     </Link>
                 </div>
@@ -138,7 +138,7 @@ const EmailSection = () => {
                         </div>
                         <button
                             type="submit"
-                            className=" text-white font-medium py-2.5 px-5 rounded-lg w-full bg-gradient-to-br from-pink-500 to-orange-500 hover:opacity-80"
+                            className=" text-white font-medium py-2.5 px-5 rounded-lg w-full bg-gradient-to-br from-from to-to hover:opacity-80"
                         >
                             Send Message
                         </button>

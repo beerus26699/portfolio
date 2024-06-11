@@ -3,6 +3,7 @@ import HeroSection from '@/components/organisms/SectionHero';
 import AboutSection from '@/components/organisms/SectionAbout';
 import SkillsSection from '@/components/organisms/SectionSkills';
 import EmailSection from '@/components/organisms/SectionEmail';
+import ProjectsSection from '@/components/organisms/SectionProjects';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,7 +16,7 @@ export default function Home() {
                 {/* <AchievementsSection /> */}
                 <AboutSection />
                 <SkillsSection />
-                {/* <ProjectsSection /> */}
+                <ProjectsSection />
                 <EmailSection />
             </div>
             {/* <Footer /> */}
