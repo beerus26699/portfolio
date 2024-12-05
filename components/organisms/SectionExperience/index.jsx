@@ -78,7 +78,7 @@ const ExperienceSection = () => {
                         both backend and frontend.
                     </p>
                     <ExperienceTags
-                        tags={['PHP', 'Javascript', 'NextJs', 'Tailwind CSS']}
+                        tags={['NestJS', 'NextJs', 'Tailwind CSS', 'PHP']}
                     />
                 </VerticalTimelineElement>
             </VerticalTimeline>

@@ -25,16 +25,16 @@ const projects = [
 const ProjectsSection = () => {
     return (
         <section id="skills">
-            <div className=" px-16 py-20 tracking-widest">
+            <div className=" lg:px-16 py-20 tracking-widest">
                 <h2 className="text-center text-4xl font-bold text-white mt-4 mb-8 md:mb-12">
                     Projects
                 </h2>
-                <div className="flex justify-evenly mt-16">
+                <div className="flex justify-evenly mt-16 gap-2 flex-wrap">
                     {projects.map((project, index) => (
                         <ProjectCard key={index} project={project}/>
                     ))}
                 </div>
-                <div className='text-center mt-10'>More ...</div>
+                <div className='text-center mt-10'>More privated projects ...</div>
             </div>
         </section>
     );

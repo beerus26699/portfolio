@@ -51,7 +51,7 @@ const AboutSection = () => {
 
     return (
         <section className="text-white" id="about">
-            <div className="md:grid md:grid-cols-2 gap-8 items-center py-8 px-4 xl:gap-16 sm:py-16 xl:px-16">
+            <div className="md:grid md:grid-cols-2 gap-8 items-center py-36 px-4 xl:gap-16 sm:py-20 xl:px-16">
                 <div
                     className="shadow-xl p-4 max-w-fit mx-auto bg-[rgb(109,109,109)]"
                     style={{ boxShadow: '0 4px 6px rgb(0 0 0 / 30%)' }}

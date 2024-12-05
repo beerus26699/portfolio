@@ -4,10 +4,33 @@ import Image from 'next/image';
 import { TypeAnimation } from 'react-type-animation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import clsx from 'clsx';
+
+const HeroImage = ({className}) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className={clsx("col-span-4 place-self-center mt-4 lg:mt-0", className)}
+        >
+            <div className="rounded-full bg-[#181818] w-[250px] h-[250px] lg:w-[400px] lg:h-[400px] relative">
+                <Image
+                    src="/images/hero-image2.png"
+                    alt="hero image"
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
+                    width={300}
+                    height={300}
+                />
+            </div>
+        </motion.div>
+    );
+};
 
 const HeroSection = () => {
     return (
         <section className="lg:py-16 h-[70vh]">
+            <HeroImage className='block sm:hidden' />
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-10">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.5 }}
@@ -41,7 +64,8 @@ const HeroSection = () => {
                     <p className="text-[#ADB7BE] text-base sm:text-lg mb-6 lg:text-xl font-trebuchet">
                         Hi,👋 I'm Nguyen Van Hai. Fictional person for preview
                         purposes :) I'm working like a full-stack developer,
-                        desiging a website. Feel free to contact me. ⭐💜
+                        desiging a website with 4+ yrs. Feel free to contact me.
+                        ⭐💜
                     </p>
                     <div>
                         <Link
@@ -50,32 +74,17 @@ const HeroSection = () => {
                         >
                             Contact me
                         </Link>
-                        <Link
+                        {/* <Link
                             href="/"
                             className="px-1 inline-block py-1 w-full sm:w-fit rounded-full bg-gradient-to-br from-from to-to hover:bg-pink text-white mt-3"
                         >
                             <span className="block bg-[#121212] hover:bg-slate-800 rounded-full px-5 py-2">
                                 Download CV
                             </span>
-                        </Link>
+                        </Link> */}
                     </div>
                 </motion.div>
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className="col-span-4 place-self-center mt-4 lg:mt-0"
-                >
-                    <div className="rounded-full bg-[#181818] w-[250px] h-[250px] lg:w-[400px] lg:h-[400px] relative">
-                        <Image
-                            src="/images/hero-image2.png"
-                            alt="hero image"
-                            className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"
-                            width={300}
-                            height={300}
-                        />
-                    </div>
-                </motion.div>
+                <HeroImage className='hidden sm:block' />
             </div>
         </section>
     );

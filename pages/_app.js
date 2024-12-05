@@ -6,7 +6,7 @@ export default function App({ Component, pageProps }) {
     return (
         <>
             <Head>
-                <title>Hainv Services</title>
+                <title>Hainv Portfolio</title>
             </Head>
             <Component {...pageProps} />
         </>

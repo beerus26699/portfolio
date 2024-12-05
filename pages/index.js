@@ -12,7 +12,7 @@ export default function Home() {
     return (
         <main>
             {/* <Navbar /> */}
-            <div className="container mt-24 mx-auto px-12 py-4">
+            <div className="container mt-10 lg:mt-24 mx-auto px-2 lg:px-12 py-4">
                 <HeroSection />
                 {/* <AchievementsSection /> */}
                 <AboutSection />
