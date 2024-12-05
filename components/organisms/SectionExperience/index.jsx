@@ -11,9 +11,9 @@ import NextjsIcon from '@/components/atoms/Icons/NextjsIcon';
 
 const ExperienceSection = () => {
     return (
-        <section className="bg-brown-b200 dark:bg-dark-d200 px-16 py-20 tracking-widest">
+        <section className="bg-brown-b200 dark:bg-dark-d200 px-0 sm:px-16 py-20 tracking-widest">
             <h2 className="text-center text-4xl font-bold text-white mt-4 mb-8 md:mb-12">
-                Projects
+                Experience
             </h2>
             <VerticalTimeline>
                 <VerticalTimelineElement
